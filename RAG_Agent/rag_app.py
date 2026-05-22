@@ -23,7 +23,6 @@ llm = ChatOllama(model=LLM_MODEL, temperature=0)
 
 
 def ingest_pdf(project_name, file_path, file_name):
-    """Loads, chunks, tags metadata, and embeds a targeted PDF document."""
     try:
         loader = PyPDFLoader(file_path)
         raw_docs = loader.load()
@@ -46,9 +45,7 @@ def ingest_pdf(project_name, file_path, file_name):
 
 
 def query_vector_store(query, project_name, pdf_name=None):
-    """Executes a similarity search using explicit project metadata filters."""
 
-    # ── FIX: Chroma requires $and when filtering by multiple fields ──
     if pdf_name:
         doc_filter = {
             "$and": [
@@ -60,7 +57,6 @@ def query_vector_store(query, project_name, pdf_name=None):
     else:
         doc_filter = {"project": {"$eq": project_name}}
         print(f"[RAG Engine]: Searching globally across all project assets...")
-    # ─────────────────────────────────────────────────────────────────
 
     retrieved_docs = vector_store.similarity_search(query, k=5, filter=doc_filter)
 
@@ -84,13 +80,12 @@ def query_vector_store(query, project_name, pdf_name=None):
     print("Processing answer...")
     response = chain.invoke({"context": context_text, "question": query})
 
-    print("\n================== ANSWER ==================")
+    print("\nANSWER:")
     print(response.content)
-    print("============================================\n")
+    print("\n")
 
 
 def delete_project_embeddings(project_name):
-    """Wipes all chunks associated with a specific project name from Chroma DB."""
     try:
         vector_store._collection.delete(where={"project": {"$eq": project_name}})
         print(f"[RAG Engine]: Dropped all vector store embeddings for project '{project_name}'.")
@@ -99,7 +94,6 @@ def delete_project_embeddings(project_name):
 
 
 def delete_pdf_embeddings(project_name, pdf_name):
-    """Wipes all chunks associated with a single document from Chroma DB."""
     try:
         vector_store._collection.delete(
             where={
