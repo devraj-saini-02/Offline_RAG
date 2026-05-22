@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-import helpers
-import rag_app
+from RAG_Agent import helpers
+from RAG_Agent import rag_app
 
 def check_environment():
     pass
